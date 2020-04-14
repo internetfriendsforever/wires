@@ -3,7 +3,7 @@ import Bezier from 'bezier-js'
 export default class Geometry {
   constructor ({
     steps = 20,
-    thickness = 10
+    thickness = 5
   } = {}) {
     this.steps = steps
     this.thickness = thickness

@@ -1,6 +1,6 @@
 export default class Shader {
   setup (regl) {
-    this.draw = regl({
+    this.drawCommand = regl({
       vert: this.constructor.vert,
       frag: this.constructor.frag,
 
@@ -24,8 +24,20 @@ export default class Shader {
 
       depth: {
         enable: false
+      },
+
+      blend: {
+        enable: true,
+        func: {
+          src: 'src alpha',
+          dst: 'one minus src alpha'
+        }
       }
     })
+  }
+
+  draw (...args) {
+    this.drawCommand(...args)
   }
 }
 
@@ -55,10 +67,41 @@ Shader.frag = `
   }
 `
 
-// class LineShader extends Shader {}
+class LineShader extends Shader {
+  setup (regl) {
+    super.setup(regl)
 
-// Shader.Line = LineShader
+    this.uniforms = {
+      phase: 0
+    }
 
+    this.uniformsCommand = regl({
+      uniforms: {
+        phase: regl.prop('phase')
+      }
+    })
+  }
+
+  draw (...args) {
+    this.uniformsCommand(this.uniforms, () => {
+      super.draw(...args)
+    })
+  }
+}
+
+Shader.Line = LineShader
+
+Shader.Line.frag = `
+  precision mediump float;
+  uniform float phase;
+  varying vec2 uv;
+
+  void main () {
+    vec3 color = vec3(0.0);
+    float flow = smoothstep(0.9, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - phase / 5.0) * 200.0)));
+    gl_FragColor = vec4(color, flow);
+  }
+`
 
 
 

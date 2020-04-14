@@ -6,7 +6,7 @@
   net.resize(500, 500)
 
   const geometry = new Geometry.Horizontal()
-  const shaders = [new Shader()]
+  const shaders = [new Shader.Line()]
 
   net.add(new Wire({
     from: [0, 250],
@@ -29,7 +29,13 @@
     shaders
   }))
 
-  net.render()
+  function render (time = 0) {
+    shaders[0].uniforms.phase = time / 1000
+    net.render()
+    window.requestAnimationFrame(render)
+  }
+
+  render()
 
   document.body.appendChild(net.canvas)
 </script>
