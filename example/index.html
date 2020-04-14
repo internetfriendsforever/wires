@@ -1,0 +1,32 @@
+<script type="module">
+  import { Net, Wire, Geometry, Shader } from '../dist/esm.js'
+
+  const net = new Net()
+
+  net.resize(500, 500)
+
+  net.add(new Wire({
+    from: [0, 250],
+    to: [500, 0],
+    geometry: new Geometry.Horizontal(),
+    shaders: [new Shader()]
+  }))
+
+  net.add(new Wire({
+    from: [0, 250],
+    to: [500, 500],
+    geometry: new Geometry.Horizontal(),
+    shaders: [new Shader()]
+  }))
+
+  net.add(new Wire({
+    from: [0, 50],
+    to: [500, 300],
+    geometry: new Geometry.Horizontal(),
+    shaders: [new Shader()]
+  }))
+
+  net.render()
+
+  document.body.appendChild(net.canvas)
+</script>
