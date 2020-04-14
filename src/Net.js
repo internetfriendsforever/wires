@@ -39,10 +39,7 @@ export default class Net {
 
     this.wires.forEach(wire => {
       wire.shaders.forEach(shader => {
-        shader.draw({
-          position: wire.geometry.positions,
-          normal: wire.geometry.normals
-        })
+        shader.draw(wire.attributes)
       })
     })
   }

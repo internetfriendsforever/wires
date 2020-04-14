@@ -26,6 +26,6 @@ export default class Wire {
   }
 
   update () {
-    this.geometry.update(this._from, this._to)
+    this.attributes = this.geometry.calculate(this._from, this._to)
   }
 }

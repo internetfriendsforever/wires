@@ -5,25 +5,28 @@
 
   net.resize(500, 500)
 
+  const geometry = new Geometry.Horizontal()
+  const shaders = [new Shader()]
+
   net.add(new Wire({
     from: [0, 250],
     to: [500, 0],
-    geometry: new Geometry.Horizontal(),
-    shaders: [new Shader()]
+    geometry,
+    shaders
   }))
 
   net.add(new Wire({
     from: [0, 250],
     to: [500, 500],
-    geometry: new Geometry.Horizontal(),
-    shaders: [new Shader()]
+    geometry,
+    shaders
   }))
 
   net.add(new Wire({
     from: [0, 50],
     to: [500, 300],
-    geometry: new Geometry.Horizontal(),
-    shaders: [new Shader()]
+    geometry,
+    shaders
   }))
 
   net.render()

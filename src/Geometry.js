@@ -15,7 +15,7 @@ export default class Geometry {
     return [point.x, point.y]
   }
 
-  update (...args) {
+  calculate (...args) {
     const steps = this.steps
     const curve = new Bezier(...args)
     const segments = curve.reduce()
@@ -44,14 +44,15 @@ export default class Geometry {
       })
     })
 
-    this.positions = positions.flat()
-
-    this.normals = positions.map((position, i) => normals[i])
+    return {
+      position: positions.flat(),
+      normal: positions.map((position, i) => normals[i])
+    }
   }
 }
 
 class HorizontalGeometry extends Geometry {
-  update (from, to) {
+  calculate (from, to) {
     const [x1, y1] = from
     const [x2, y2] = to
 
@@ -59,7 +60,7 @@ class HorizontalGeometry extends Geometry {
     const controlDistance = xDiff * 0.5
     
     // TODO, better calculation
-    super.update(
+    return super.calculate(
       x1, y1,
       x1 + controlDistance, y1,
       x2 - controlDistance, y2,
