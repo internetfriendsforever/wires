@@ -1,39 +1,60 @@
 export default class Shader {
-  setup (regl) {
-    this.drawCommand = regl({
-      vert: this.constructor.vert,
-      frag: this.constructor.frag,
+  setup (gl) {
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)
+    
+    gl.shaderSource(vertexShader, this.constructor.vert)
+    gl.compileShader(vertexShader)
 
-      attributes: {
-        position: regl.prop('position'),
-        normal: regl.prop('normal')
-      },
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
 
-      uniforms: {
-        dimensions: ({ viewportWidth, viewportHeight, pixelRatio }) => [
-          viewportWidth / pixelRatio,
-          viewportHeight / pixelRatio
-        ]
-      },
+    gl.shaderSource(fragmentShader, this.constructor.frag)
+    gl.compileShader(fragmentShader)
 
-      count: (context, props) => {
-        return props.position.length
-      },
+    this.program = gl.createProgram()
 
-      primitive: 'triangle strip',
+    gl.attachShader(this.program, vertexShader)
+    gl.attachShader(this.program, fragmentShader)
+    gl.linkProgram(this.program)
 
-      depth: {
-        enable: false
-      },
+    // var Pmatrix = gl.getUniformLocation(shaderProgram, "Pmatrix");
+    // var Vmatrix = gl.getUniformLocation(shaderProgram, "Vmatrix");
+    // var Mmatrix = gl.getUniformLocation(shaderProgram, "Mmatrix");
 
-      blend: {
-        enable: true,
-        func: {
-          src: 'src alpha',
-          dst: 'one minus src alpha'
-        }
-      }
-    })
+
+    // this.drawCommand = regl({
+    //   vert: this.constructor.vert,
+    //   frag: this.constructor.frag,
+
+    //   attributes: {
+    //     position: regl.prop('position'),
+    //     normal: regl.prop('normal')
+    //   },
+
+    //   uniforms: {
+    //     dimensions: ({ viewportWidth, viewportHeight, pixelRatio }) => [
+    //       viewportWidth / pixelRatio,
+    //       viewportHeight / pixelRatio
+    //     ]
+    //   },
+
+    //   count: (context, props) => {
+    //     return props.position.length
+    //   },
+
+    //   primitive: 'triangle strip',
+
+    //   depth: {
+    //     enable: false
+    //   },
+
+    //   blend: {
+    //     enable: true,
+    //     func: {
+    //       src: 'src alpha',
+    //       dst: 'one minus src alpha'
+    //     }
+    //   }
+    // })
   }
 
   draw (...args) {
@@ -45,16 +66,11 @@ Shader.vert = `
   precision mediump float;
   attribute vec2 position;
   attribute vec2 normal;
-  uniform vec2 dimensions;
   varying vec2 uv;
-
-  const vec2 flip = vec2(0.0, -0.0);
 
   void main () {
     uv = normal;
-    float x = (position.x / dimensions.x) * 2.0 - 1.0;
-    float y = -((position.y / dimensions.y) * 2.0 - 1.0);
-    gl_Position = vec4(x, y, 0, 1);
+    gl_Position = vec4(position * 2.0 - 1.0, 0, 1);
   }
 `
 
@@ -67,41 +83,41 @@ Shader.frag = `
   }
 `
 
-class LineShader extends Shader {
-  setup (regl) {
-    super.setup(regl)
+// class LineShader extends Shader {
+//   setup (regl) {
+//     super.setup(regl)
 
-    this.uniforms = {
-      phase: 0
-    }
+//     this.uniforms = {
+//       phase: 0
+//     }
 
-    this.uniformsCommand = regl({
-      uniforms: {
-        phase: regl.prop('phase')
-      }
-    })
-  }
+//     this.uniformsCommand = regl({
+//       uniforms: {
+//         phase: regl.prop('phase')
+//       }
+//     })
+//   }
 
-  draw (...args) {
-    this.uniformsCommand(this.uniforms, () => {
-      super.draw(...args)
-    })
-  }
-}
+//   draw (...args) {
+//     this.uniformsCommand(this.uniforms, () => {
+//       super.draw(...args)
+//     })
+//   }
+// }
 
-Shader.Line = LineShader
+// Shader.Line = LineShader
 
-Shader.Line.frag = `
-  precision mediump float;
-  uniform float phase;
-  varying vec2 uv;
+// Shader.Line.frag = `
+//   precision mediump float;
+//   uniform float phase;
+//   varying vec2 uv;
 
-  void main () {
-    vec3 color = vec3(0.0);
-    float flow = smoothstep(0.9, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - phase / 5.0) * 200.0)));
-    gl_FragColor = vec4(color, flow);
-  }
-`
+//   void main () {
+//     vec3 color = vec3(0.0);
+//     float flow = smoothstep(0.9, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - phase / 5.0) * 200.0)));
+//     gl_FragColor = vec4(color, flow);
+//   }
+// `
 
 
 

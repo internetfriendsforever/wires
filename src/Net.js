@@ -1,20 +1,14 @@
-import createREGL from 'regl'
-
 export default class Net {
   constructor ({
-    canvas,
-    pixelRatio
+    canvas
   } = {}) {
-    this.pixelRatio = window.devicePixelRatio
     this.canvas = canvas || document.createElement('canvas')
-    this.regl = createREGL(this.canvas)
+    this.gl = this.canvas.getContext('webgl')
     this.wires = []
-
-    const regl = this.regl
   }
 
   add (wire) {
-    wire.shaders.forEach(shader => shader.setup(this.regl))
+    wire.setup(this.gl)
     this.wires.push(wire)
   }
 
@@ -23,24 +17,22 @@ export default class Net {
   }
 
   resize (width, height) {
-    this.canvas.width = width * this.pixelRatio
-    this.canvas.height = height * this.pixelRatio
+    this.canvas.width = width * window.devicePixelRatio
+    this.canvas.height = height * window.devicePixelRatio
     this.canvas.style.width = width + 'px'
     this.canvas.style.height = height + 'px'
   }
 
   render () {
-    this.regl.poll()
-    
-    this.regl.clear({
-      color: [0, 0, 0, 0],
-      depth: 1
-    })
+    const { gl } = this
+    const { width, height } = this.canvas
 
-    this.wires.forEach(wire => {
-      wire.shaders.forEach(shader => {
-        shader.draw(wire.attributes)
-      })
-    })
+    gl.clearColor(0, 0, 0, 1)
+    gl.clearDepth(1)
+
+    gl.viewport(0, 0, width, height)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+    this.wires.forEach(wire => wire.draw())
   }
 }

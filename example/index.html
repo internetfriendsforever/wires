@@ -6,36 +6,40 @@
   net.resize(500, 500)
 
   const geometry = new Geometry.Horizontal()
-  const shaders = [new Shader.Line()]
+  const shaders = [new Shader()]
 
   net.add(new Wire({
-    from: [0, 250],
-    to: [500, 0],
+    from: [0, 0.5],
+    to: [1, 0],
     geometry,
     shaders
   }))
 
   net.add(new Wire({
-    from: [0, 250],
-    to: [500, 500],
+    from: [0, 0.5],
+    to: [1, 1],
     geometry,
     shaders
   }))
 
   net.add(new Wire({
-    from: [0, 50],
-    to: [500, 300],
+    from: [0, 0.5],
+    to: [1, 0.7],
     geometry,
     shaders
   }))
 
-  function render (time = 0) {
-    shaders[0].uniforms.phase = time / 1000
-    net.render()
-    window.requestAnimationFrame(render)
-  }
+  net.wires[2].from = [0.5, 0.5]
 
-  render()
+  net.render()
+
+  // function render (time = 0) {
+  //   shaders[0].uniforms.phase = time / 1000
+  //   net.render()
+  //   window.requestAnimationFrame(render)
+  // }
+
+  // render()
 
   document.body.appendChild(net.canvas)
 </script>

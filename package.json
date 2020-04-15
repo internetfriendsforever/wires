@@ -18,8 +18,7 @@
     "url": "git+https://github.com/internetfriendsforever/wires.git"
   },
   "dependencies": {
-    "bezier-js": "^2.6.1",
-    "regl": "^1.4.2"
+    "bezier-js": "^2.6.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.1.0",
