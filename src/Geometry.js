@@ -23,8 +23,8 @@ function bezier (t, c1, c2, c3, c4) {
 
 export default class Geometry {
   constructor ({
-    steps = 20,
-    thickness = 0.05
+    steps = 50,
+    thickness = 20
   } = {}) {
     this.steps = steps
     this.thickness = thickness

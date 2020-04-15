@@ -56,7 +56,7 @@ export default class Wire {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
   }
 
-  draw () {
+  draw (width, height) {
     const { gl } = this
 
     this.shaders.forEach(shader => {
@@ -73,6 +73,10 @@ export default class Wire {
       gl.enableVertexAttribArray(normals)
 
       gl.useProgram(shader.program)
+
+      const dimensions = gl.getUniformLocation(shader.program, 'dimensions')
+
+      gl.uniform2f(dimensions, width, height)
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.count)
     })

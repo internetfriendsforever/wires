@@ -36,11 +36,14 @@ Shader.vert = `
   precision mediump float;
   attribute vec2 position;
   attribute vec2 normal;
+  uniform vec2 dimensions;
   varying vec2 uv;
 
   void main () {
-    uv = normal;
-    gl_Position = vec4(position * 2.0 - 1.0, 0, 1);
+    uv = 1.0 - normal;
+    float x = (position.x / dimensions.x) * 2.0 - 1.0;
+    float y = -((position.y / dimensions.y) * 2.0 - 1.0);
+    gl_Position = vec4(x, y, 0, 1);
   }
 `
 

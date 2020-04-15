@@ -9,27 +9,32 @@
   const shaders = [new Shader()]
 
   net.add(new Wire({
-    from: [0, 0.5],
-    to: [1, 0],
+    from: [0, 250],
+    to: [500, 0],
     geometry,
     shaders
   }))
 
   net.add(new Wire({
-    from: [0, 0.5],
-    to: [1, 1],
+    from: [0, 250],
+    to: [500, 500],
     geometry,
     shaders
   }))
 
   net.add(new Wire({
-    from: [0, 0.5],
-    to: [1, 0.7],
+    from: [0, 250],
+    to: [500, 250],
     geometry,
     shaders
   }))
 
-  net.wires[2].from = [0.5, 0.5]
+  net.add(new Wire({
+    from: [0, 500],
+    to: [500, 250],
+    geometry,
+    shaders
+  }))
 
   net.render()
 

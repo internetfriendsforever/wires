@@ -17,10 +17,12 @@ export default class Net {
   }
 
   resize (width, height) {
-    this.canvas.width = width * window.devicePixelRatio
-    this.canvas.height = height * window.devicePixelRatio
-    this.canvas.style.width = width + 'px'
-    this.canvas.style.height = height + 'px'
+    this.width = width
+    this.height = height
+    this.canvas.width = this.width * window.devicePixelRatio
+    this.canvas.height = this.height * window.devicePixelRatio
+    this.canvas.style.width = this.width + 'px'
+    this.canvas.style.height = this.height + 'px'
   }
 
   render () {
@@ -33,6 +35,6 @@ export default class Net {
     gl.viewport(0, 0, width, height)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-    this.wires.forEach(wire => wire.draw())
+    this.wires.forEach(wire => wire.draw(this.width, this.height))
   }
 }
