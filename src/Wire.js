@@ -14,10 +14,10 @@ export default class Wire {
     this.shaders = shaders
   }
 
-  setup (gl) {
+  prepare (gl) {
     this.gl = gl
 
-    this.shaders.forEach(shader => shader.setup(gl))
+    this.shaders.forEach(shader => shader.prepare(gl))
     
     this.buffers = {
       positions: gl.createBuffer(),
@@ -61,11 +61,13 @@ export default class Wire {
 
     this.shaders.forEach(shader => {
       const positions = gl.getAttribLocation(shader.program, 'position')
+      
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.positions)
       gl.vertexAttribPointer(positions, 2, gl.FLOAT, false, 0, 0) 
       gl.enableVertexAttribArray(positions)
 
       const normals = gl.getAttribLocation(shader.program, 'normal')
+
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.normals)
       gl.vertexAttribPointer(normals, 2, gl.FLOAT, false, 0, 0) 
       gl.enableVertexAttribArray(normals)

@@ -8,7 +8,7 @@ export default class Net {
   }
 
   add (wire) {
-    wire.setup(this.gl)
+    wire.prepare(this.gl)
     this.wires.push(wire)
   }
 
