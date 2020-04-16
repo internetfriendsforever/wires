@@ -45,7 +45,7 @@ export default class Wire {
 
   update () {
     const { gl } = this
-    const { positions, normals } = this.geometry.calculate(this._from, this._to)
+    const { positions, normals, thickness, length } = this.geometry.calculate(this._from, this._to)
 
     this.count = positions.length / 2
 
@@ -54,31 +54,24 @@ export default class Wire {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.normals);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+
+    this.thickness = thickness
+    this.length = length
   }
 
   draw (width, height) {
-    const { gl } = this
+    const { gl, buffers, count, thickness, length } = this
 
     this.shaders.forEach(shader => {
-      const positions = gl.getAttribLocation(shader.program, 'position')
-      
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.positions)
-      gl.vertexAttribPointer(positions, 2, gl.FLOAT, false, 0, 0) 
-      gl.enableVertexAttribArray(positions)
-
-      const normals = gl.getAttribLocation(shader.program, 'normal')
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.normals)
-      gl.vertexAttribPointer(normals, 2, gl.FLOAT, false, 0, 0) 
-      gl.enableVertexAttribArray(normals)
-
-      gl.useProgram(shader.program)
-
-      const dimensions = gl.getUniformLocation(shader.program, 'dimensions')
-
-      gl.uniform2f(dimensions, width, height)
-
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.count)
+      shader.draw({
+        gl,
+        buffers,
+        width,
+        height,
+        count,
+        thickness,
+        length
+      })
     })
   }
 }

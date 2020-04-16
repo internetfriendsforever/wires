@@ -11,6 +11,12 @@ export default class Shader {
     gl.attachShader(program, fragmentShader)
     gl.linkProgram(program)
 
+    this.uniformLocations = {
+      dimensions: gl.getUniformLocation(program, 'dimensions'),
+      thickness: gl.getUniformLocation(program, 'thickness'),
+      length: gl.getUniformLocation(program, 'length')
+    }
+
     this.program = program
   }
 
@@ -29,6 +35,35 @@ export default class Shader {
     } else {
       return shader
     }
+  }
+
+  draw (context) {
+    const { gl, count, buffers, width, height, length } = context
+
+    const positions = gl.getAttribLocation(this.program, 'position')
+      
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.positions)
+    gl.vertexAttribPointer(positions, 2, gl.FLOAT, false, 0, 0) 
+    gl.enableVertexAttribArray(positions)
+
+    const normals = gl.getAttribLocation(this.program, 'normal')
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normals)
+    gl.vertexAttribPointer(normals, 2, gl.FLOAT, false, 0, 0) 
+    gl.enableVertexAttribArray(normals)
+
+    gl.useProgram(this.program)
+
+    this.uniforms(context)
+    
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, count)
+  }
+
+  uniforms (context) {
+    const { gl, width, height, thickness, length } = context
+    gl.uniform2f(this.uniformLocations.dimensions, width, height)
+    gl.uniform1f(this.uniformLocations.thickness, thickness)
+    gl.uniform1f(this.uniformLocations.length, length)
   }
 }
 
@@ -56,19 +91,36 @@ Shader.frag = `
   }
 `
 
-// class LineShader extends Shader {}
+class WaveShader extends Shader {
+  prepare (gl) {
+    super.prepare(gl)
+    this.phase = 0
+    this.color = [0, 0, 0]
+    this.uniformLocations.phase = gl.getUniformLocation(this.program, 'phase')
+    this.uniformLocations.color = gl.getUniformLocation(this.program, 'color')
+  }
 
-// Shader.Line = LineShader
+  uniforms (context) {
+    super.uniforms(context)
+    context.gl.uniform1f(this.uniformLocations.phase, this.phase)
+    context.gl.uniform3fv(this.uniformLocations.color, this.color)
+  }
+}
 
-// Shader.Line.frag = `
-//   precision mediump float;
-//   // uniform float phase;
-//   varying vec2 uv;
-//   const float phase = 0.0;
+Shader.Wave = WaveShader
 
-//   void main () {
-//     vec3 color = vec3(0.0);
-//     float flow = smoothstep(0.9, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - phase / 5.0) * 200.0)));
-//     gl_FragColor = vec4(color, flow);
-//   }
-// `
+Shader.Wave.frag = `
+  precision mediump float;
+  uniform float phase;
+  uniform float thickness;
+  uniform float length;
+  uniform vec3 color;
+  varying vec2 uv;
+
+  void main () {
+    float l = ceil(sqrt(length)) * 3.14 * 2.0;
+    float alpha = smoothstep(0.95, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - (phase / length)) * l)));
+    gl_FragColor = vec4(color, alpha);
+    gl_FragColor.rgb *= gl_FragColor.a;
+  }
+`

@@ -29,11 +29,10 @@ export default class Net {
     const { gl } = this
     const { width, height } = this.canvas
 
-    gl.clearColor(0, 0, 0, 1)
-    gl.clearDepth(1)
-
     gl.viewport(0, 0, width, height)
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     this.wires.forEach(wire => wire.draw(this.width, this.height))
   }
