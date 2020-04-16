@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Waves example</title>
+</head>
+<body>
+  <script type="module">
+    document.body.style.background = '#ccc'
+
+    import { Net, Wire, Shape, Shader } from '../dist/esm.js'
+
+    class WaveShader extends Shader {
+      prepare (gl) {
+        super.prepare(gl)
+        this.phase = 0
+        this.color = [0, 0, 0]
+        this.uniformLocations.phase = gl.getUniformLocation(this.program, 'phase')
+        this.uniformLocations.color = gl.getUniformLocation(this.program, 'color')
+      }
+
+      uniforms (context) {
+        super.uniforms(context)
+        context.gl.uniform1f(this.uniformLocations.phase, this.phase)
+        context.gl.uniform3fv(this.uniformLocations.color, this.color)
+      }
+    }
+
+    WaveShader.frag = `
+      precision mediump float;
+      uniform float phase;
+      uniform float thickness;
+      uniform float length;
+      uniform vec3 color;
+      varying vec2 uv;
+
+      void main () {
+        //float l = ceil(sqrt(length)) * 3.14 * 2.0;
+        float alpha = smoothstep(0.95, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - (phase / length)) * length / 2.5)));
+        gl_FragColor = vec4(color, alpha);
+        gl_FragColor.rgb *= gl_FragColor.a;
+      }
+    `
+
+    const net = new Net()
+
+    net.resize(500, 500)
+
+    const shape = new Shape.Horizontal()
+    const shaders = [new WaveShader()]
+
+    for (let i = 0; i < 10; i++) {
+      net.add(new Wire({
+        from: [0, 250],
+        to: [500, (i / 9) * 500],
+        shape,
+        shaders
+      }))
+    }
+
+    function render (time = 0) {
+      shaders[0].phase = time / 20
+      net.render()
+      window.requestAnimationFrame(render)
+    }
+
+    render()
+
+    document.body.appendChild(net.canvas)
+  </script>
+</body>
+</html>

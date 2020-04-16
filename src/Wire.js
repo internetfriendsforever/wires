@@ -1,16 +1,16 @@
 import Shader from './Shader'
-import Geometry from './Geometry'
+import Shape from './Shape'
 
 export default class Wire {
   constructor ({
     from,
     to,
-    geometry = new Geometry(),
+    shape = new Shape(),
     shaders = [new Shader()]
   } = {}) {
     this._from = from
     this._to = to
-    this.geometry = geometry
+    this.shape = shape
     this.shaders = shaders
   }
 
@@ -45,7 +45,7 @@ export default class Wire {
 
   update () {
     const { gl } = this
-    const { positions, normals, thickness, length } = this.geometry.calculate(this._from, this._to)
+    const { positions, normals, thickness, length } = this.shape.calculate(this._from, this._to)
 
     this.count = positions.length / 2
 

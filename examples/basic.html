@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Basic example</title>
+</head>
+<body>
+  <script type="module">
+    import { Net, Wire, Shape, Shader } from '../dist/esm.js'
+
+    const net = new Net()
+
+    net.resize(500, 500)
+
+    const shaders = [new Shader()]
+
+    net.add(new Wire({
+      from: [0, 0],
+      to: [500, 400],
+      shape: new Shape.Horizontal(),
+      shaders
+    }))
+
+    net.render()
+
+    document.body.appendChild(net.canvas)
+  </script>
+
+</body>
+</html>

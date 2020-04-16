@@ -90,37 +90,3 @@ Shader.frag = `
     gl_FragColor = vec4(uv, 1.0, 1.0);
   }
 `
-
-class WaveShader extends Shader {
-  prepare (gl) {
-    super.prepare(gl)
-    this.phase = 0
-    this.color = [0, 0, 0]
-    this.uniformLocations.phase = gl.getUniformLocation(this.program, 'phase')
-    this.uniformLocations.color = gl.getUniformLocation(this.program, 'color')
-  }
-
-  uniforms (context) {
-    super.uniforms(context)
-    context.gl.uniform1f(this.uniformLocations.phase, this.phase)
-    context.gl.uniform3fv(this.uniformLocations.color, this.color)
-  }
-}
-
-Shader.Wave = WaveShader
-
-Shader.Wave.frag = `
-  precision mediump float;
-  uniform float phase;
-  uniform float thickness;
-  uniform float length;
-  uniform vec3 color;
-  varying vec2 uv;
-
-  void main () {
-    float l = ceil(sqrt(length)) * 3.14 * 2.0;
-    float alpha = smoothstep(0.95, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - (phase / length)) * l)));
-    gl_FragColor = vec4(color, alpha);
-    gl_FragColor.rgb *= gl_FragColor.a;
-  }
-`

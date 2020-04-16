@@ -113,3 +113,23 @@ class HorizontalGeometry extends Geometry {
 }
 
 Geometry.Horizontal = HorizontalGeometry
+
+class VerticalGeometry extends Geometry {
+  calculate (from, to) {
+    const [x1, y1] = from
+    const [x2, y2] = to
+
+    const yd = Math.abs(y1 - y2)
+    const cd = yd * 0.5
+    
+    // TODO, better calculation
+    return super.calculate(
+      [x1, y1],
+      [x1, y1 + cd],
+      [x2, y2 - cd],
+      [x2, y2]
+    )
+  }
+}
+
+Geometry.Vertical = VerticalGeometry
