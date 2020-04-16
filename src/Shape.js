@@ -1,16 +1,92 @@
 export default class Shape {
-  constructor (...args) {
+  constructor (props) {
+    this.props = { width: 10 }
     this.points = []
-    this.update(...args)
+    this.set(props)
   }
 
-  update (...args) {
-    this.points = this.calculate(...args)
-    this.updateBuffers()
+  set (props) {
+    Object.assign(this.props, props)
+    this.changed = true
+  }
+
+  update (gl) {
+    if (!this.buffers) {
+      this.setupBuffers(gl)
+    }
+
+    if (this.changed) {
+      this.changed = false
+      this.calculateGeometry(this.calculatePoints(this.props))
+      this.updateBuffers(gl)
+    }
+  }
+
+  setupBuffers (gl) {
+    this.buffers = {
+      positions: gl.createBuffer(),
+      normals: gl.createBuffer()
+    }
+  }
+
+  updateBuffers (gl) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.positions);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.positions), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.normals);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normals), gl.STATIC_DRAW);
+  }
+
+  calculateGeometry (points) {
+    const add = (a, b) => a + b
+
+    const positions = []
+    const normals = []
+    const angles = []
+    const lengths = []
+
+    for (let i = 0; i < points.length - 1; i++) {
+      const [x1, y1] = points[i]
+      const [x2, y2] = points[i + 1]
+      const dx = x1 - x2
+      const dy = y1 - y2
+      angles.push(Math.atan2(dx, dy))
+      lengths.push(Math.sqrt(dx * dx + dy * dy))
+    }
+
+    for (let i = 0; i < points.length; i++) {
+      // Average of previous and next angle
+      const [x1, y1] = points[i]
+
+      const nearAngles = [angles[i - 1], angles[i]].filter(Boolean)
+      const angle = nearAngles.reduce(add, 0) / nearAngles.length
+
+      const la = angle - Math.PI / 2
+      const ra = angle + Math.PI / 2
+      const lx = x1 + Math.sin(la) * this.props.width
+      const ly = y1 + Math.cos(-la) * this.props.width
+      const rx = x1 + Math.sin(ra) * this.props.width
+      const ry = y1 + Math.cos(-ra) * this.props.width
+
+      positions.push(lx, ly, rx, ry)
+    }
+
+    this.length = lengths.reduce(add, 0)
+
+    let offset = 0
+
+    for (let i = 0; i < points.length; i++) {
+      if (i > 0) {
+        offset += lengths[i - 1] / this.length
+      }
+      
+      normals.push(offset, 0, offset, 1)
+    }
+
+    this.positions = positions
+    this.normals = normals
   }
 }
-
-// Move calculation of normals and positions to shape, whenever it's updated
 
 Shape.Bezier = class extends Shape {
   b1 (t) {
@@ -42,28 +118,50 @@ Shape.Bezier = class extends Shape {
     return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
   }
 
-  calculate (c1, c2, c3, c4, segments = 50) {
+  calculatePoints ({ points, segments = 50 }) {
     return Array(segments + 1).fill().map((_, i) => {
       const t = this.easeInOut(i / (segments))
-      return this.bezier(t, c4, c3, c2, c1)
+      return this.bezier(t, ...points)
     })
   }
 }
 
 Shape.Horizontal = class extends Shape.Bezier {
-  calculate (from, to, segments, curve = 0.5) {
+  calculatePoints ({ from, to, width, segments, curve = 0.5 }) {
     const [x1, y1] = from
     const [x2, y2] = to
 
     const diff = Math.abs(x1 - x2)
-    
-    // TODO: max/min?
-    return super.calculate(
-      [x1, y1],
-      [x1 + diff * curve, y1],
-      [x2 - diff * curve, y2],
-      [x2, y2],
-      segments
-    )
+
+    return super.calculatePoints({
+      width,
+      segments,
+      points: [
+        [x1, y1],
+        [x1 + diff * curve, y1],
+        [x2 - diff * curve, y2],
+        [x2, y2]
+      ]
+    })
+  }
+}
+
+Shape.Vertical = class extends Shape.Bezier {
+  calculatePoints ({ from, to, width, segments, curve = 0.5 }) {
+    const [x1, y1] = from
+    const [x2, y2] = to
+
+    const diff = Math.abs(x1 - x2)
+
+    return super.calculatePoints({
+      width,
+      segments,
+      points: [
+        [x1, y1],
+        [x1, y1 + diff * curve],
+        [x2, y2 - diff * curve],
+        [x2, y2]
+      ]
+    })
   }
 }

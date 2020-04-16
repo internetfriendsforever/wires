@@ -9,16 +9,16 @@
 
     const net = new Net()
 
+    net.add(new Wire({
+      style: new Style.Basic(),
+      shape: new Shape.Horizontal({
+        width: 10,
+        from: [100, 100],
+        to: [400, 400]
+      })
+    }))
+
     net.resize(500, 500)
-
-    const wire = new Wire({
-      shape: new Shape.Horizontal([50, 50], [450, 450]),
-      style: new Style.Basic()
-    })
-
-    net.add(wire)
-
-    net.render()
     net.render()
 
     document.body.appendChild(net.canvas)

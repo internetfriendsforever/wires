@@ -16,8 +16,8 @@
         this.uniformLocations.color = gl.getUniformLocation(this.program, 'color')
       }
 
-      bindUniforms (context) {
-        super.bindUniforms(context)
+      bindUniforms (context, shape) {
+        super.bindUniforms(context, shape)
         context.gl.uniform1f(this.uniformLocations.phase, this.phase)
         context.gl.uniform3fv(this.uniformLocations.color, this.color)
       }
@@ -44,18 +44,22 @@
     const style = new WaveStyle()
 
     for (let i = 0; i < 10; i++) {
-      const shape = new Shape.Horizontal([0, 250], [500, (i / 9) * 500])
+      const shape = new Shape.Horizontal({
+        width: 5,
+        from: [0, 250],
+        to: [500, (i / 9) * 500]
+      })
 
       net.add(new Wire({
-        shape,
-        style
+        style,
+        shape
       }))
     }
 
     function render (time = 0) {
       style.phase = time / 20
       net.render()
-      // window.requestAnimationFrame(render)
+      window.requestAnimationFrame(render)
     }
 
     render()

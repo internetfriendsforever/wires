@@ -19,8 +19,11 @@
     const net = new Net()
 
     const wire = new Wire({
-      shape: new Shape.Horizontal([0, 0], [0, 0]),
-      style: new Style.Basic()
+      style: new Style.Basic(),
+      shape: new Shape.Horizontal({
+        from: [0, 0],
+        to: [0, 0]
+      }),
     })
 
     net.add(wire)
@@ -28,7 +31,12 @@
     function resize () {
       const width = window.innerWidth
       const height = window.innerHeight
-      wire.shape.update([0, height * 0.2], [width, height * 0.8])
+      
+      wire.shape.set({
+        from: [0, height * 0.2],
+        to: [width, height * 0.8]
+      })
+      
       net.resize(width, height)
       net.render()
     }

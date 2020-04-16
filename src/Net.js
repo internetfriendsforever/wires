@@ -27,10 +27,10 @@ export default class Net {
   render () {
     const { gl, width, height, canvas } = this
 
-    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
     
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.enable(gl.BLEND)
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
     this.wires.forEach(wire => {
       wire.draw({
