@@ -14,15 +14,13 @@
 </head>
 <body>
   <script type="module">
-    import { Net, Wire, Shape, Shader } from '../dist/esm.js'
+    import { Net, Wire, Shape, Style } from '../dist/esm.js'
 
     const net = new Net()
 
     const wire = new Wire({
-      from: [0, 0],
-      to: [0, 0],
-      shape: new Shape.Horizontal(),
-      shaders: [new Shader()]
+      shape: new Shape.Horizontal([0, 0], [0, 0]),
+      style: new Style.Basic()
     })
 
     net.add(wire)
@@ -30,8 +28,7 @@
     function resize () {
       const width = window.innerWidth
       const height = window.innerHeight
-      wire.from = [0, height * 0.2]
-      wire.to = [width, height * 0.8]
+      wire.shape.update([0, height * 0.2], [width, height * 0.8])
       net.resize(width, height)
       net.render()
     }

@@ -8,7 +8,6 @@ export default class Net {
   }
 
   add (wire) {
-    wire.prepare(this.gl)
     this.wires.push(wire)
   }
 
@@ -26,14 +25,19 @@ export default class Net {
   }
 
   render () {
-    const { gl } = this
-    const { width, height } = this.canvas
+    const { gl, width, height, canvas } = this
 
-    gl.viewport(0, 0, width, height)
+    gl.viewport(0, 0, canvas.width, canvas.height)
     
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-    this.wires.forEach(wire => wire.draw(this.width, this.height))
+    this.wires.forEach(wire => {
+      wire.draw({
+        gl,
+        width,
+        height
+      })
+    })
   }
 }

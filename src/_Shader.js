@@ -1,5 +1,23 @@
 export default class Shader {
-  prepare (gl) {
+  draw (shape, context) {
+    const gl = context.gl
+
+    if (!this.program) {
+      this.setup(gl)
+    }
+
+    gl.useProgram(this.program)
+
+    gl.uniform2f(this.uniformLocations.dimensions, context.width, context.height)
+    gl.uniform1f(this.uniformLocations.shapeThickness, shape.thickness)
+    gl.uniform1f(this.uniformLocations.shapeLength, shape.length)
+
+    shape.bind(context, this.program)
+    
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, shape.count)
+  }
+
+  setup (gl) {
     const { vert, frag } = this.constructor
 
     const vertexShader = this.compile(gl, gl.VERTEX_SHADER, vert)
@@ -13,8 +31,8 @@ export default class Shader {
 
     this.uniformLocations = {
       dimensions: gl.getUniformLocation(program, 'dimensions'),
-      thickness: gl.getUniformLocation(program, 'thickness'),
-      length: gl.getUniformLocation(program, 'length')
+      shapeThickness: gl.getUniformLocation(program, 'shapeThickness'),
+      shapeLength: gl.getUniformLocation(program, 'shapeLength')
     }
 
     this.program = program
@@ -35,35 +53,6 @@ export default class Shader {
     } else {
       return shader
     }
-  }
-
-  draw (context) {
-    const { gl, count, buffers, width, height, length } = context
-
-    const positions = gl.getAttribLocation(this.program, 'position')
-      
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.positions)
-    gl.vertexAttribPointer(positions, 2, gl.FLOAT, false, 0, 0) 
-    gl.enableVertexAttribArray(positions)
-
-    const normals = gl.getAttribLocation(this.program, 'normal')
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normals)
-    gl.vertexAttribPointer(normals, 2, gl.FLOAT, false, 0, 0) 
-    gl.enableVertexAttribArray(normals)
-
-    gl.useProgram(this.program)
-
-    this.uniforms(context)
-    
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, count)
-  }
-
-  uniforms (context) {
-    const { gl, width, height, thickness, length } = context
-    gl.uniform2f(this.uniformLocations.dimensions, width, height)
-    gl.uniform1f(this.uniformLocations.thickness, thickness)
-    gl.uniform1f(this.uniformLocations.length, length)
   }
 }
 

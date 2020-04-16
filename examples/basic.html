@@ -5,21 +5,20 @@
 </head>
 <body>
   <script type="module">
-    import { Net, Wire, Shape, Shader } from '../dist/esm.js'
+    import { Net, Wire, Shape, Style } from '../dist/esm.js'
 
     const net = new Net()
 
     net.resize(500, 500)
 
-    const shaders = [new Shader()]
+    const wire = new Wire({
+      shape: new Shape.Horizontal([50, 50], [450, 450]),
+      style: new Style.Basic()
+    })
 
-    net.add(new Wire({
-      from: [0, 0],
-      to: [500, 400],
-      shape: new Shape.Horizontal(),
-      shaders
-    }))
+    net.add(wire)
 
+    net.render()
     net.render()
 
     document.body.appendChild(net.canvas)
