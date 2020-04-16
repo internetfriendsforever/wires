@@ -5,8 +5,8 @@ export default class Wire {
   constructor ({
     from,
     to,
-    shape = new Shape(),
-    shaders = [new Shader()]
+    shape,
+    shaders
   } = {}) {
     this._from = from
     this._to = to
