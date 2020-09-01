@@ -11,33 +11,6 @@
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')
 
-    class WaveStyle extends Style {
-      constructor (gl, { phase = 0 } = {}) {
-        super(gl, {
-          frag: `
-            precision mediump float;
-            uniform float phase;
-            uniform float length;
-            uniform vec3 color;
-            varying vec2 uv;
-
-            void main () {
-              float alpha = smoothstep(0.95, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - (phase / length)) * length * 200.0)));
-              gl_FragColor = vec4(color, alpha);
-              gl_FragColor.rgb *= gl_FragColor.a;
-            }
-          `
-        })
-
-        this.uniforms.phase = gl.getUniformLocation(this.program, 'phase')
-        this.phase = phase
-      }
-
-      set phase (phase) {
-        this.gl.uniform1f(this.uniforms.phase, phase)
-      }
-    }
-
     document.body.appendChild(canvas)
 
     canvas.width = 1000
@@ -49,26 +22,39 @@
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
-    const style = new WaveStyle(gl)
+    const style = wires.style(gl, {
+      frag: `
+        precision mediump float;
+        uniform float phase;
+        uniform float length;
+        uniform vec3 color;
+        varying vec2 uv;
+
+        void main () {
+          float alpha = smoothstep(0.95, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - (phase / length)) * length * 200.0)));
+          gl_FragColor = vec4(color, alpha);
+          gl_FragColor.rgb *= gl_FragColor.a;
+        }
+      `
+    })
 
     const shapes = []
 
     for (let i = 0; i < 10; i++) {
       shapes.push(
-        new HorizontalShape({
-          width: 0.01,
-          from: [0, 0.5],
-          to: [1, i / 9]
-        })
+        wires.curve(gl, [
+          [0, 0.5],
+          [1, i / 9]
+        ])
       )
     }
 
-    function render (time = 0) {
-      style.phase = time / 10000
+    const phase = gl.getUniformLocation(style.program, 'phase')
 
-      shapes.forEach(shape => {
-        style.draw(shape)
-      })
+    function render (time = 0) {
+      gl.uniform1f(phase, time / 10000)
+
+      shapes.forEach(style.draw)
 
       window.requestAnimationFrame(render)
     }

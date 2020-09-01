@@ -1,38 +1,4 @@
-export default class Shape {
-  constructor (gl, params) {
-    this.gl = gl
-    this.params = params
-    this.positions = gl.createBuffer()
-    this.normals = gl.createBuffer()
-    this.dirty = true
-  }
-
-  get points () {
-    return []
-  }
-
-  updateBuffers () {
-    const gl = this.gl
-
-    if (this.dirty) {
-      const extrusion = extrudePolyline(this.points, this.params.width)
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.positions)
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(extrusion.positions), gl.STATIC_DRAW)
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.normals)
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(extrusion.normals), gl.STATIC_DRAW)
-
-      this.count = extrusion.positions.length / 2
-      this.length = extrusion.length
-      this.dirty = false
-    }
-
-    return this
-  }
-}
-
-function extrudePolyline (points, width) {
+export default function (points, width) {
   const add = (a, b) => a + b
   const sum = array => array.reduce(add, 0)
   const positions = []

@@ -6,22 +6,18 @@
 <body>
   <script src="../dist/iife.js"></script>
   <script>
-    const { Style, HorizontalShape } = wires
+    console.log(wires)
 
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')
 
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
+
     document.body.appendChild(canvas)
 
-    const style = new Style(gl)
+    const draw = wires.style(gl)
 
-    const shape = new HorizontalShape(gl, {
-      width: 0.025,
-      from: [0.1, 0.1],
-      to: [0.9, 0.9]
-    })
-
-    style.draw(shape)
+    draw(wires.curve(gl))
   </script>
 </body>
 </html>

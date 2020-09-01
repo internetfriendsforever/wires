@@ -20,16 +20,15 @@
 
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
 
-    const style = new Style(gl)
+    const draw = wires.style(gl)
 
     for (let i = 0; i < 10; i++) {
-      const shape = new HorizontalShape({
-        width: 0.01,
-        from: [0, 0.5],
-        to: [1, i / 9]
-      })
+      const shape = wires.curve(gl, [
+        [0, 0.5],
+        [1, i / 9]
+      ])
 
-      style.draw(shape)
+      draw(shape)
     }
   </script>
 </body>

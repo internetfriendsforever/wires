@@ -29,13 +29,8 @@
 
     document.body.appendChild(canvas)
 
-    const style = new Style(gl)
-
-    const shape = new HorizontalShape(gl, {
-      width: 0.025,
-      from: [0.1, 0.1],
-      to: [0.9, 0.9]
-    })
+    const draw = wires.style(gl)
+    const shape = wires.curve(gl)
 
     function resize () {
       canvas.width = window.innerWidth * window.devicePixelRatio
@@ -45,7 +40,7 @@
     }
 
     function render () {
-      style.draw(shape)
+      draw(shape)
     }
 
     resize()
