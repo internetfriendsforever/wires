@@ -1,4 +1,5 @@
-export { default as Net } from './Net'
-export { default as Wire } from './Wire'
 export { default as Shape } from './Shape'
 export { default as Style } from './Style'
+export { default as BezierShape } from './shapes/Bezier'
+export { default as HorizontalShape } from './shapes/Horizontal'
+export { default as VerticalShape } from './shapes/Vertical'

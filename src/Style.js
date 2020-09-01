@@ -1,9 +1,32 @@
 export default class Style {
-  setup (gl) {
-    const { vert, frag } = this.constructor
+  constructor (gl, {
+    vert = `
+      precision mediump float;
+      attribute vec2 position;
+      attribute vec2 normal;
+      varying vec2 uv;
 
-    const vertexShader = this.compile(gl, gl.VERTEX_SHADER, vert)
-    const fragmentShader = this.compile(gl, gl.FRAGMENT_SHADER, frag)
+      void main () {
+        uv = 1.0 - normal;
+        float x = position.x * 2.0 - 1.0;
+        float y = -(position.y * 2.0 - 1.0);
+        gl_Position = vec4(x, y, 0, 1);
+      }
+    `,
+
+    frag = `
+      precision mediump float;
+      varying vec2 uv;
+
+      void main () {
+        gl_FragColor = vec4(uv, 0.0, 1.0);
+      }
+    `
+  } = {}) {
+    this.gl = gl
+
+    const vertexShader = this.compile(gl.VERTEX_SHADER, vert)
+    const fragmentShader = this.compile(gl.FRAGMENT_SHADER, frag)
 
     const program = gl.createProgram()
 
@@ -11,13 +34,12 @@ export default class Style {
     gl.attachShader(program, fragmentShader)
     gl.linkProgram(program)
 
-    this.attributeLocations = {
+    this.attributes = {
       positions: gl.getAttribLocation(program, 'position'),
       normals: gl.getAttribLocation(program, 'normal')
     }
 
-    this.uniformLocations = {
-      dimensions: gl.getUniformLocation(program, 'dimensions'),
+    this.uniforms = {
       width: gl.getUniformLocation(program, 'width'),
       length: gl.getUniformLocation(program, 'length')
     }
@@ -25,9 +47,10 @@ export default class Style {
     this.program = program
   }
 
-  compile (gl, type, source) {
+  compile (type, source) {
+    const gl = this.gl
     const shader = gl.createShader(type)
-    
+
     gl.shaderSource(shader, source)
     gl.compileShader(shader)
 
@@ -42,68 +65,34 @@ export default class Style {
     }
   }
 
-  draw (context, shape) {
-    const gl = context.gl
-
-    if (!this.program) {
-      this.setup(gl)
-    }
-
-    shape.update(gl)
+  draw (shape) {
+    const gl = this.gl
 
     gl.useProgram(this.program)
 
-    this.bindAttributes(context, shape)
-    this.bindUniforms(context, shape)
+    shape.updateBuffers()
 
-    const count = shape.positions.length / 2
-    
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, count)
+    this.bindAttributes(shape)
+    this.bindUniforms(shape)
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, shape.count)
   }
 
-  bindAttributes (context, shape) {
-    const gl = context.gl
+  bindAttributes (shape) {
+    const gl = this.gl
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, shape.buffers.positions)
-    gl.vertexAttribPointer(this.attributeLocations.positions, 2, gl.FLOAT, false, 0, 0) 
-    gl.enableVertexAttribArray(this.attributeLocations.positions)
+    gl.bindBuffer(gl.ARRAY_BUFFER, shape.positions)
+    gl.vertexAttribPointer(this.attributes.positions, 2, gl.FLOAT, false, 0, 0)
+    gl.enableVertexAttribArray(this.attributes.positions)
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, shape.buffers.normals)
-    gl.vertexAttribPointer(this.attributeLocations.normals, 2, gl.FLOAT, false, 0, 0) 
-    gl.enableVertexAttribArray(this.attributeLocations.normals)
+    gl.bindBuffer(gl.ARRAY_BUFFER, shape.normals)
+    gl.vertexAttribPointer(this.attributes.normals, 2, gl.FLOAT, false, 0, 0)
+    gl.enableVertexAttribArray(this.attributes.normals)
   }
 
-  bindUniforms (context, shape) {
-    const gl = context.gl
-
-    gl.uniform2f(this.uniformLocations.dimensions, context.width, context.height)
-    gl.uniform1f(this.uniformLocations.width, shape.props.width)
-    gl.uniform1f(this.uniformLocations.length, shape.length)
+  bindUniforms (shape) {
+    const gl = this.gl
+    gl.uniform1f(this.uniforms.width, shape.width)
+    gl.uniform1f(this.uniforms.length, shape.length)
   }
 }
-
-Style.Basic = class extends Style {}
-
-Style.Basic.vert = `
-  precision mediump float;
-  attribute vec2 position;
-  attribute vec2 normal;
-  uniform vec2 dimensions;
-  varying vec2 uv;
-
-  void main () {
-    uv = 1.0 - normal;
-    float x = (position.x / dimensions.x) * 2.0 - 1.0;
-    float y = -((position.y / dimensions.y) * 2.0 - 1.0);
-    gl_Position = vec4(x, y, 0, 1);
-  }
-`
-
-Style.Basic.frag = `
-  precision mediump float;
-  varying vec2 uv;
-
-  void main () {
-    gl_FragColor = vec4(uv, 0.0, 1.0);
-  }
-`

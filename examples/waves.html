@@ -1,71 +1,79 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Waves example</title>
+  <title>Basic example</title>
 </head>
 <body>
   <script src="../dist/iife.js"></script>
   <script>
-    const { Net, Wire, Shape, Style } = wires
+    const { Style, HorizontalShape } = wires
 
-    class WaveStyle extends Style.Basic {
-      setup (gl) {
-        super.setup(gl)
-        this.phase = 0
-        this.color = [0, 0, 0]
-        this.uniformLocations.phase = gl.getUniformLocation(this.program, 'phase')
-        this.uniformLocations.color = gl.getUniformLocation(this.program, 'color')
+    const canvas = document.createElement('canvas')
+    const gl = canvas.getContext('webgl')
+
+    class WaveStyle extends Style {
+      constructor (gl, { phase = 0 } = {}) {
+        super(gl, {
+          frag: `
+            precision mediump float;
+            uniform float phase;
+            uniform float length;
+            uniform vec3 color;
+            varying vec2 uv;
+
+            void main () {
+              float alpha = smoothstep(0.95, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - (phase / length)) * length * 200.0)));
+              gl_FragColor = vec4(color, alpha);
+              gl_FragColor.rgb *= gl_FragColor.a;
+            }
+          `
+        })
+
+        this.uniforms.phase = gl.getUniformLocation(this.program, 'phase')
+        this.phase = phase
       }
 
-      bindUniforms (context, shape) {
-        super.bindUniforms(context, shape)
-        context.gl.uniform1f(this.uniformLocations.phase, this.phase)
-        context.gl.uniform3fv(this.uniformLocations.color, this.color)
+      set phase (phase) {
+        this.gl.uniform1f(this.uniforms.phase, phase)
       }
     }
 
-    WaveStyle.frag = `
-      precision mediump float;
-      uniform float phase;
-      uniform float length;
-      uniform vec3 color;
-      varying vec2 uv;
+    document.body.appendChild(canvas)
 
-      void main () {
-        float alpha = smoothstep(0.95, 1.0, sin(uv.y * 5.0 - 1.0 + sin((uv.x - (phase / length)) * length / 2.5)));
-        gl_FragColor = vec4(color, alpha);
-        gl_FragColor.rgb *= gl_FragColor.a;
-      }
-    `
+    canvas.width = 1000
+    canvas.height = 1000
+    canvas.style.width = '500px'
+    canvas.style.width = '500px'
 
-    const net = new Net()
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
+    gl.enable(gl.BLEND)
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
-    net.resize(500, 500)
+    const style = new WaveStyle(gl)
 
-    const style = new WaveStyle()
+    const shapes = []
 
     for (let i = 0; i < 10; i++) {
-      const shape = new Shape.Horizontal({
-        width: 5,
-        from: [0, 250],
-        to: [500, (i / 9) * 500]
-      })
-
-      net.add(new Wire({
-        style,
-        shape
-      }))
+      shapes.push(
+        new HorizontalShape({
+          width: 0.01,
+          from: [0, 0.5],
+          to: [1, i / 9]
+        })
+      )
     }
 
     function render (time = 0) {
-      style.phase = time / 20
-      net.render()
+      style.phase = time / 10000
+
+      shapes.forEach(shape => {
+        style.draw(shape)
+      })
+
       window.requestAnimationFrame(render)
     }
 
     render()
-
-    document.body.appendChild(net.canvas)
   </script>
 </body>
 </html>
