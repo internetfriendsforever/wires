@@ -1,7 +1,7 @@
 {
   "name": "@internetfriendsforever/wires",
   "version": "0.0.1",
-  "description": "Rendering extruded beziers with custom shaders in webgl",
+  "description": "Render extruded beziers with custom webgl shaders",
   "author": "internetfriendsforever <anyone@internetfriendsforever.com>",
   "main": "dist/cjs.js",
   "module": "dist/esm.js",
