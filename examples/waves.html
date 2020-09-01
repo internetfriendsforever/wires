@@ -4,8 +4,9 @@
   <title>Waves example</title>
 </head>
 <body>
-  <script type="module">
-    import { Net, Wire, Shape, Style } from '../dist/esm.js'
+  <script src="../dist/iife.js"></script>
+  <script>
+    const { Net, Wire, Shape, Style } = wires
 
     class WaveStyle extends Style.Basic {
       setup (gl) {

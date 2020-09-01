@@ -13,8 +13,9 @@
   </style>
 </head>
 <body>
-  <script type="module">
-    import { Net, Wire, Shape, Style } from '../dist/esm.js'
+  <script src="../dist/iife.js"></script>
+  <script>
+    const { Net, Wire, Shape, Style } = wires
 
     const net = new Net()
 
@@ -31,12 +32,12 @@
     function resize () {
       const width = window.innerWidth
       const height = window.innerHeight
-      
+
       wire.shape.set({
         from: [0, height * 0.2],
         to: [width, height * 0.8]
       })
-      
+
       net.resize(width, height)
       net.render()
     }
