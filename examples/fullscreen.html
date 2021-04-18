@@ -29,7 +29,7 @@
 
     document.body.appendChild(canvas)
 
-    const draw = wires.style(gl)
+    const style = wires.style(gl)
     const shape = wires.curve(gl)
 
     function resize () {
@@ -40,7 +40,7 @@
     }
 
     function render () {
-      draw(shape)
+      style.draw(shape)
     }
 
     resize()

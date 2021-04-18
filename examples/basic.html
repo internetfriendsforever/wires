@@ -15,9 +15,10 @@
 
     document.body.appendChild(canvas)
 
-    const draw = wires.style(gl)
+    const style = wires.style(gl)
+    const shape = wires.curve(gl)
 
-    draw(wires.curve(gl))
+    style.draw(shape)
   </script>
 </body>
 </html>
