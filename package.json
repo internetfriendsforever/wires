@@ -17,7 +17,7 @@
     "type": "git",
     "url": "git+https://github.com/internetfriendsforever/wires.git"
   },
-  "devDependencies": {
+  "dependencies": {
     "rollup": "^2.6.1"
   }
 }
