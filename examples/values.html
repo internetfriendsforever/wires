@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Values example</title>
+  <meta charset="utf-8" />
+</head>
+<body>
+  <script src="../dist/iife.js"></script>
+  <script>
+    const canvas = document.createElement('canvas')
+    const gl = canvas.getContext('webgl')
+
+    document.body.appendChild(canvas)
+
+    canvas.width = 500 * window.devicePixelRatio
+    canvas.height = 500 * window.devicePixelRatio
+    canvas.style.width = '500px'
+    canvas.style.width = '500px'
+
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
+
+    const style = wires.style(gl, {
+      vert: `
+        precision mediump float;
+        attribute vec2 position;
+        attribute vec2 normal;
+        attribute vec3 value;
+        varying vec2 uv;
+        varying vec3 vValue;
+
+        void main () {
+          uv = 1.0 - normal;
+          vValue = value;
+          float x = position.x * 2.0 - 1.0;
+          float y = -(position.y * 2.0 - 1.0);
+          gl_Position = vec4(x, y, 0, 1);
+        }
+      `,
+
+      frag: `
+        precision mediump float;
+        varying vec3 vValue;
+
+        void main () {
+          gl_FragColor = vec4(vValue, 1.0);
+          gl_FragColor.rgb *= gl_FragColor.a;
+        }
+      `
+    })
+
+    style.attributes.value = gl.getAttribLocation(style.program, 'value')
+
+    const shapes = []
+
+    for (let i = 0; i < 10; i++) {
+      const from = [0, i / 9]
+      const to = [1, 1 - i / 9]
+      const shape = wires.curve(gl, [from, to], {
+        width: 0.025
+      })
+
+      shape.values = gl.createBuffer()
+
+      shape.data = {}
+
+      shape.data.values = Array(shape.count / 2).fill().flatMap(() => {
+        const [r, g, b] = Array(3).fill().map(Math.random)
+        return [r, g, b, r, g, b]
+      })
+
+      shapes.push(shape)
+    }
+
+    function render (time = 0) {
+      shapes.forEach(shape => {
+        const [r, g, b] = Array(3).fill().map(Math.random)
+
+        shape.data.values.splice(0, 6)
+        shape.data.values.push(r, g, b, r, g, b)
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, shape.values)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.data.values), gl.DYNAMIC_DRAW)
+        gl.vertexAttribPointer(style.attributes.value, 3, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(style.attributes.value)
+
+        style.draw(shape)
+      })
+
+      window.requestAnimationFrame(render)
+    }
+
+    render()
+  </script>
+</body>
+</html>

@@ -46,6 +46,8 @@ export default function (gl, {
 
   return {
     program,
+    attributes,
+    uniforms,
     draw: shape => {
       gl.useProgram(program)
 

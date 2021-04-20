@@ -5,7 +5,7 @@ export default function (gl, controlPoints, {
   ...params
 } = {}) {
   const points = Array(segments + 1).fill().map((_, i) => (
-    bezier(easeInOut(i / (segments)), ...controlPoints)
+    bezier(i / (segments), ...controlPoints)
   ))
 
   return polyline(gl, points, params)
@@ -32,8 +32,4 @@ function bezier (t, c1, c2, c3, c4) {
     c1[0] * b1(t) + c2[0] * b2(t) + c3[0] * b3(t) + c4[0] * b4(t),
     c1[1] * b1(t) + c2[1] * b2(t) + c3[1] * b3(t) + c4[1] * b4(t)
   ]
-}
-
-function easeInOut (t) {
-  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 }
